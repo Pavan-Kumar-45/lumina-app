@@ -15,7 +15,7 @@ from .scheduler import scheduler
 
 origins = [
     "http://localhost:5173",
-    "https://lumina-app.vercel.app",  # <--- We will get this URL later, but add it now
+    "https://lumina-app-psi.vercel.app",  # <--- We will get this URL later, but add it now
     "*" # Allow all for now (easiest for testing)
 ]
 
