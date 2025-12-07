@@ -1,0 +1,75 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-[#F0F4F8] text-[#1F1F1F] dark:bg-[#131314] dark:text-[#E3E3E3] overflow-hidden transition-colors duration-300;
+  }
+
+  /* --- GLOBAL CURSOR & INPUTS --- */
+  input, textarea {
+    caret-color: #6366f1; /* Indigo */
+  }
+  .dark input, .dark textarea {
+    caret-color: #A8C7FA; /* Gemini Blue */
+  }
+  input:focus, textarea:focus {
+    outline: none;
+  }
+
+  /* --- TABLE STYLES (FORCED BORDERS) --- */
+  .prose table {
+    border-collapse: collapse;
+    width: 100%;
+    margin: 1.5rem 0;
+    border-radius: 8px;
+    overflow: hidden;
+    /* Force border color */
+    outline: 1px solid #d1d5db; 
+  }
+  .dark .prose table {
+    outline: 1px solid #444746;
+  }
+
+  .prose th {
+    background-color: #f8fafc;
+    text-align: left;
+    padding: 12px;
+    font-weight: 600;
+    border-bottom: 2px solid #d1d5db;
+    border-right: 1px solid #d1d5db;
+  }
+  .dark .prose th {
+    background-color: #1e1f20;
+    border-bottom: 2px solid #444746;
+    border-right: 1px solid #444746;
+  }
+
+  .prose td {
+    padding: 10px;
+    border-bottom: 1px solid #e5e7eb;
+    border-right: 1px solid #e5e7eb;
+  }
+  .dark .prose td {
+    border-bottom: 1px solid #303030;
+    border-right: 1px solid #303030;
+  }
+
+  /* Remove outer edges */
+  .prose tr:last-child td { border-bottom: none; }
+  .prose th:last-child, .prose td:last-child { border-right: none; }
+}
+
+/* Backgrounds & Scrollbars */
+.app-background { position: fixed; inset: 0; z-index: -1; background: transparent; }
+.dark .app-background { background: #131314; background-image: radial-gradient(circle at 50% 0%, #1E1F20 0%, transparent 60%); }
+
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { @apply bg-slate-300 dark:bg-[#444746] rounded-full; }
+::-webkit-scrollbar-thumb:hover { @apply bg-slate-400 dark:bg-[#5E5E5E]; }
+
+/* Markdown Extras */
+.markdown-preview code { @apply bg-[#E1E3E1] dark:bg-[#1E1F20] px-1.5 py-0.5 rounded text-sm font-mono text-[#00639B] dark:text-[#A8C7FA]; }
+.markdown-preview pre { @apply bg-[#1E1F20] text-[#E3E3E3] p-4 rounded-xl mb-4 overflow-x-auto border border-[#444746]; }
