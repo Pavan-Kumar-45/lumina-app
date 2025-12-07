@@ -7,17 +7,17 @@ from .routers import users,diary,auth,todos,notes,goals
 from .scheduler import scheduler
  
 
-# origins = [
-#     "http://localhost:5173",      
-#     "http://127.0.0.1:5173",      
-# ]
-
-
 origins = [
-    "http://localhost:5173",
-    "https://lumina-app-psi.vercel.app",  # <--- We will get this URL later, but add it now
-    "*" # Allow all for now (easiest for testing)
+    "http://localhost:5173",      
+    "http://127.0.0.1:5173",      
 ]
+
+
+# origins = [
+#     "http://localhost:5173",
+#     "https://lumina-app-psi.vercel.app",  # <--- We will get this URL later, but add it now
+#     "*" # Allow all for now (easiest for testing)
+# ]
 
 def create_db_and_tables():
     Base.metadata.create_all(engine)
