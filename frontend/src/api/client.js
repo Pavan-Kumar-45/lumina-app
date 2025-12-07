@@ -64,7 +64,7 @@ const isProduction = import.meta.env.PROD;
 
 // REPLACE 'https://lumina-backend.onrender.com' with your actual Render URL after deployment!
 export const API_BASE_URL = isProduction 
-  ? 'https://lumina-backend.onrender.com' 
+  ? 'https://lumina-backend-i7p7.onrender.com' 
   : 'http://localhost:8000';
 
 export const apiClient = {
