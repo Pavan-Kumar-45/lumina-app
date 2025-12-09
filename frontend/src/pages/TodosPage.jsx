@@ -12,22 +12,32 @@ import BeautifulCalendar from '../components/common/BeautifulCalendar';
 
 const TodosPage = () => {
   const [todos, setTodos] = useState([]);
-  const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
+  
+  // FIX 1: Initialize with LOCAL DATE to prevent "isPast" locking incorrectly
+  const [date, setDate] = useState(() => {
+    const d = new Date();
+    // Create YYYY-MM-DD string in local timezone
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  });
+  
   const [modalOpen, setModalOpen] = useState(false);
   const [calendarOpen, setCalendarOpen] = useState(false);
   const [newTask, setNewTask] = useState('');
-  
-  // NEW STATE FOR EDITING
   const [editingTodo, setEditingTodo] = useState(null);
-  
   const [showCompleted, setShowCompleted] = useState(true);
   const calendarRef = useRef(null);
 
+  // Compare dates properly by resetting time to midnight
   const isPast = new Date(date).setHours(0,0,0,0) < new Date().setHours(0,0,0,0);
 
   const load = async () => {
-    const data = await todosApi.getByDate(date);
-    setTodos(Array.isArray(data) ? data : []);
+    try {
+      const data = await todosApi.getByDate(date);
+      setTodos(Array.isArray(data) ? data : []);
+    } catch (err) {
+      console.error("Failed to load todos", err);
+      setTodos([]);
+    }
   };
 
   useEffect(() => { load(); }, [date]);
@@ -43,7 +53,9 @@ const TodosPage = () => {
   const changeDate = (days) => {
     const d = new Date(date);
     d.setDate(d.getDate() + days);
-    setDate(d.toISOString().split('T')[0]);
+    // Keep local format when changing dates
+    const localDate = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    setDate(localDate);
   };
 
   const toggle = async (todo) => {
@@ -51,35 +63,36 @@ const TodosPage = () => {
     await todosApi.updateStatus(todo.id, !todo.status);
   };
 
-  // FIXED: Handle both ADD and EDIT
   const handleSaveTodo = async (e) => {
     e.preventDefault();
-    if (isPast) return; 
+    if (isPast && !editingTodo) return; 
 
-    if (editingTodo) {
-        // UPDATE EXISTING
-        await todosApi.update(editingTodo.id, { 
-            ...editingTodo, 
-            title: newTask 
-        });
-    } else {
-        // CREATE NEW
-        await todosApi.create({ 
-            title: newTask, 
-            todo_date: date, 
-            priority: 'medium' 
-        });
+    try {
+      if (editingTodo) {
+          await todosApi.update(editingTodo.id, { 
+              ...editingTodo, 
+              title: newTask 
+          });
+      } else {
+          // FIX 2: Send 'date' key to match Backend Pydantic model
+          await todosApi.create({ 
+              title: newTask, 
+              date: date, 
+              priority: 'medium' 
+          });
+      }
+
+      setNewTask('');
+      setEditingTodo(null);
+      setModalOpen(false);
+      load();
+    } catch (error) {
+      console.error("Error saving todo:", error);
     }
-
-    setNewTask('');
-    setEditingTodo(null); // Reset editing state
-    setModalOpen(false);
-    load();
   };
 
-  // NEW: Open Modal in Edit Mode
   const startEdit = (e, todo) => {
-      e.stopPropagation(); // Prevent toggling the checkbox
+      e.stopPropagation();
       setEditingTodo(todo);
       setNewTask(todo.title);
       setModalOpen(true);
@@ -94,7 +107,6 @@ const TodosPage = () => {
   const pendingTodos = todos.filter(t => !t.status);
   const completedTodos = todos.filter(t => t.status);
 
-  // UPDATED TASK ROW WITH EDIT BUTTON
   const TaskRow = ({ todo }) => (
     <motion.div layout initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, height: 0 }} className="mb-3">
       <div onClick={() => toggle(todo)} className={`group flex items-center gap-4 p-4 rounded-2xl cursor-pointer transition-all duration-200 border ${todo.status ? 'bg-gray-100/50 dark:bg-[#1E1F20] border-transparent opacity-60' : 'bg-white dark:bg-[#1E1F20] border-gray-100 dark:border-[#444746] shadow-sm hover:shadow-md'}`}>
@@ -103,7 +115,6 @@ const TodosPage = () => {
         </button>
         <span className={`text-lg font-medium flex-1 ${todo.status ? 'line-through text-gray-400' : 'text-gray-700 dark:text-[#E3E3E3]'}`}>{todo.title}</span>
         
-        {/* EDIT BUTTON (Only for pending tasks) */}
         {!todo.status && !isPast && (
             <button 
                 onClick={(e) => startEdit(e, todo)}
@@ -164,7 +175,6 @@ const TodosPage = () => {
         )}
       </div>
 
-      {/* MODAL HANDLES BOTH CREATE AND EDIT */}
       <Modal isOpen={modalOpen} onClose={() => setModalOpen(false)} title={editingTodo ? "Edit Task" : "New Task"}>
         <form onSubmit={handleSaveTodo} className="space-y-4">
           <Input value={newTask} onChange={e => setNewTask(e.target.value)} placeholder="e.g., Read 10 pages" autoFocus />

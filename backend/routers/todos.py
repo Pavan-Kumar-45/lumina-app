@@ -63,15 +63,25 @@ async def gettodobyid(id: int , db : SessionDep, user : UserDep):
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No Todos FOund")
     else:
         return todo 
+ 
+
+ 
 @router.post("/",status_code=status.HTTP_201_CREATED,response_model=ReturnTodo)
 async def addTodo(todo : AddTodo, db : SessionDep, user : UserDep):
+ 
+    entry_dt = datetime.now()
+    
+ 
+    if hasattr(todo, 'date') and todo.date:
+        entry_dt = datetime.combine(todo.date, datetime.now().time())
+
     db_todo = Todo(
         title=todo.title,
         description = todo.description,
         priority=todo.priority,
         edited = False,
         user_id = user.id,
-        entry_datetime = datetime.now() 
+        entry_datetime = entry_dt
     )
     db.add(db_todo)
     db.commit() 
