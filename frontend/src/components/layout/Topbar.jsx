@@ -7,8 +7,11 @@ const Topbar = ({ onMenuClick }) => {
   
   const getGreeting = () => {
     const hours = new Date().getHours();
-    if (hours < 12) return 'Good morning';
-    if (hours < 18) return 'Good afternoon';
+    // 5 AM to 11:59 AM
+    if (hours >= 5 && hours < 12) return 'Good morning';
+    // 12 PM to 4:59 PM
+    if (hours >= 12 && hours < 17) return 'Good afternoon';
+    // 5 PM to 4:59 AM (Everything else)
     return 'Good evening';
   };
 
