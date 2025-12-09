@@ -17,7 +17,7 @@ async def send_otp_email(email: EmailStr, otp: str):
     resend.Emails.send(params)
 
 async def send_reminder_email(email: EmailStr, username: str, task_count: int):
-    app_link = "https://lumina-app.onrender.com"
+    app_link = "https://lumina-app-psi.vercel.app/"
     
     html_content = f"""
     <body style="margin: 0; padding: 0; background-color: #f4f4f4; font-family: Arial, sans-serif;">
