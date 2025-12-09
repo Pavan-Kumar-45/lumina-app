@@ -295,9 +295,10 @@ const NoteReader = ({ note, onEdit, onBack }) => {
   );
 };
 
-// --- EDIT MODE ---
+// --- EDIT MODE (FIXED) ---
 const NoteEditor = ({ note, onSave, onBack }) => {
   const [formData, setFormData] = useState({ 
+    id: note?.id || null, 
     title: note?.title || '', 
     content: note?.content || '',
     tags: note?.tags?.map(t => (typeof t === 'string' ? t : t.name)) || [] 
@@ -314,12 +315,29 @@ const NoteEditor = ({ note, onSave, onBack }) => {
   const titleInputRef = useRef(null);
   const [showNavbarTitle, setShowNavbarTitle] = useState(false);
 
-  // Auto-Save Logic
+  // Auto-Save Logic (Fixed)
   useEffect(() => {
-    const timer = setTimeout(() => {
+    const timer = setTimeout(async () => {
       if (saveStatus === 'unsaved') {
+        // Prevent saving if title AND content are empty
+        if (!formData.title.trim() && !formData.content.trim()) {
+            setSaveStatus('saved'); 
+            return;
+        }
+
         setSaveStatus('saving');
-        onSave(formData).then(() => setSaveStatus('saved'));
+        try {
+            const savedNote = await onSave(formData);
+            
+            // CRITICAL FIX: If we just created a new note, update local state with the new ID
+            if (savedNote && savedNote.id && !formData.id) {
+                setFormData(prev => ({ ...prev, id: savedNote.id }));
+            }
+            setSaveStatus('saved');
+        } catch (error) {
+            console.error("Auto-save failed", error);
+            setSaveStatus('error');
+        }
       }
     }, 1500); 
     return () => clearTimeout(timer);
@@ -360,7 +378,6 @@ const NoteEditor = ({ note, onSave, onBack }) => {
       window.print();
     } else {
       const ext = format === 'md' ? 'md' : 'txt';
-      // Strip MD characters for txt export if needed, keeping simple here
       const content = formData.content; 
       const blob = new Blob([content], {type: 'text/plain'});
       const url = URL.createObjectURL(blob);
@@ -378,7 +395,11 @@ const NoteEditor = ({ note, onSave, onBack }) => {
     setTimeout(() => setCopied(false), 2000);
   };
 
-  const handleSave = async () => { await onSave(formData); };
+  const handleManualSave = async () => { 
+      // Prevent manual save of empty note
+      if (!formData.title.trim() && !formData.content.trim()) return;
+      await onSave(formData); 
+  };
 
   return (
     <FullScreenPortal>
@@ -391,9 +412,8 @@ const NoteEditor = ({ note, onSave, onBack }) => {
             </button>
             <div className="h-6 w-px bg-gray-300 dark:bg-[#444746] hidden md:block"></div>
             
-            {/* Auto-Save Indicator */}
             <span className="text-xs text-gray-400 font-mono hidden sm:block">
-              {saveStatus === 'saving' ? 'Saving...' : saveStatus === 'unsaved' ? 'Unsaved' : 'Saved'}
+              {saveStatus === 'saving' ? 'Saving...' : saveStatus === 'unsaved' ? 'Unsaved' : saveStatus === 'error' ? 'Error' : 'Saved'}
             </span>
 
             <AnimatePresence mode="wait">
@@ -425,7 +445,6 @@ const NoteEditor = ({ note, onSave, onBack }) => {
 
             <button onClick={() => setZenMode(true)} className="p-2 text-gray-500 hover:text-indigo-500 dark:text-[#C4C7C5] dark:hover:text-[#A8C7FA]" title="Zen Mode"><Maximize size={18} /></button>
             
-            {/* Export Menu */}
             <div className="relative">
                 <button onClick={() => setExportOpen(!exportOpen)} className="p-2 text-gray-500 hover:text-indigo-500 dark:text-[#C4C7C5] dark:hover:text-[#A8C7FA]" title="Export"><Download size={18} /></button>
                 <AnimatePresence>{exportOpen && <ExportMenu onExport={handleExport} />}</AnimatePresence>
@@ -438,7 +457,7 @@ const NoteEditor = ({ note, onSave, onBack }) => {
 
             <div className="h-6 w-px bg-gray-300 dark:bg-[#444746] mx-2"></div>
 
-            <Button onClick={() => { handleSave(); onBack(); }} className="rounded-full px-6 bg-[#A8C7FA] text-[#003355] font-bold shadow-lg shadow-indigo-500/10">
+            <Button onClick={() => { handleManualSave(); onBack(); }} className="rounded-full px-6 bg-[#A8C7FA] text-[#003355] font-bold shadow-lg shadow-indigo-500/10">
               Done
             </Button>
           </div>
@@ -540,13 +559,19 @@ const NotesPage = () => {
   useEffect(() => { load(); }, []);
 
   const handleSave = async (noteData) => {
+    // 1. Prevent saving if completely empty and no ID (prevents "ghost" notes)
+    if (!noteData.id && !noteData.title.trim() && !noteData.content.trim()) {
+        return null;
+    }
+
     if (noteData.id) {
         await notesApi.update(noteData.id, noteData);
         setNotes(prev => prev.map(n => n.id === noteData.id ? { ...n, ...noteData } : n));
+        return noteData; // Return existing note
     } else {
         const newNote = await notesApi.create(noteData);
         setNotes(prev => [newNote, ...prev]);
-        return newNote;
+        return newNote; // Return NEW note so Editor can capture the ID
     }
   };
 

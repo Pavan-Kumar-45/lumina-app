@@ -26,6 +26,6 @@ async def send_daily_reminders():
     finally:
         db.close()
 
-scheduler = AsyncIOScheduler()
+scheduler = AsyncIOScheduler(timezone='Asia/Kolkata')
 scheduler.add_job(send_daily_reminders, 'cron', hour=8, minute=0)
-scheduler.add_job(send_daily_reminders, 'cron', hour=18, minute=0)
+scheduler.add_job(send_daily_reminders, 'cron', hour=22, minute=22)

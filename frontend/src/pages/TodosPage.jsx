@@ -1,5 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Plus, Calendar as CalendarIcon, CheckCircle2, Circle, ChevronDown, ChevronRight, Lock, ChevronLeft } from 'lucide-react';
+import { 
+  Plus, Calendar as CalendarIcon, CheckCircle2, Circle, 
+  ChevronDown, ChevronRight, Lock, ChevronLeft, Pencil 
+} from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { todosApi } from '../api/todos';
 import Modal from '../components/common/Modal';
@@ -13,6 +16,10 @@ const TodosPage = () => {
   const [modalOpen, setModalOpen] = useState(false);
   const [calendarOpen, setCalendarOpen] = useState(false);
   const [newTask, setNewTask] = useState('');
+  
+  // NEW STATE FOR EDITING
+  const [editingTodo, setEditingTodo] = useState(null);
+  
   const [showCompleted, setShowCompleted] = useState(true);
   const calendarRef = useRef(null);
 
@@ -44,18 +51,50 @@ const TodosPage = () => {
     await todosApi.updateStatus(todo.id, !todo.status);
   };
 
-  const add = async (e) => {
+  // FIXED: Handle both ADD and EDIT
+  const handleSaveTodo = async (e) => {
     e.preventDefault();
     if (isPast) return; 
-    await todosApi.create({ title: newTask, todo_date: date, priority: 'medium' });
+
+    if (editingTodo) {
+        // UPDATE EXISTING
+        await todosApi.update(editingTodo.id, { 
+            ...editingTodo, 
+            title: newTask 
+        });
+    } else {
+        // CREATE NEW
+        await todosApi.create({ 
+            title: newTask, 
+            todo_date: date, 
+            priority: 'medium' 
+        });
+    }
+
     setNewTask('');
+    setEditingTodo(null); // Reset editing state
     setModalOpen(false);
     load();
+  };
+
+  // NEW: Open Modal in Edit Mode
+  const startEdit = (e, todo) => {
+      e.stopPropagation(); // Prevent toggling the checkbox
+      setEditingTodo(todo);
+      setNewTask(todo.title);
+      setModalOpen(true);
+  };
+
+  const openNewTaskModal = () => {
+      setEditingTodo(null);
+      setNewTask('');
+      setModalOpen(true);
   };
 
   const pendingTodos = todos.filter(t => !t.status);
   const completedTodos = todos.filter(t => t.status);
 
+  // UPDATED TASK ROW WITH EDIT BUTTON
   const TaskRow = ({ todo }) => (
     <motion.div layout initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, height: 0 }} className="mb-3">
       <div onClick={() => toggle(todo)} className={`group flex items-center gap-4 p-4 rounded-2xl cursor-pointer transition-all duration-200 border ${todo.status ? 'bg-gray-100/50 dark:bg-[#1E1F20] border-transparent opacity-60' : 'bg-white dark:bg-[#1E1F20] border-gray-100 dark:border-[#444746] shadow-sm hover:shadow-md'}`}>
@@ -63,6 +102,16 @@ const TodosPage = () => {
           {todo.status ? <CheckCircle2 size={24} /> : <Circle size={24} />}
         </button>
         <span className={`text-lg font-medium flex-1 ${todo.status ? 'line-through text-gray-400' : 'text-gray-700 dark:text-[#E3E3E3]'}`}>{todo.title}</span>
+        
+        {/* EDIT BUTTON (Only for pending tasks) */}
+        {!todo.status && !isPast && (
+            <button 
+                onClick={(e) => startEdit(e, todo)}
+                className="opacity-0 group-hover:opacity-100 p-2 text-gray-400 hover:text-[#00639B] hover:bg-gray-100 dark:hover:bg-[#303030] rounded-lg transition-all"
+            >
+                <Pencil size={16} />
+            </button>
+        )}
       </div>
     </motion.div>
   );
@@ -90,7 +139,7 @@ const TodosPage = () => {
             <button onClick={() => changeDate(1)} className="p-2 hover:bg-gray-100 dark:hover:bg-[#303030] rounded-lg text-gray-500 dark:text-[#C4C7C5]"><ChevronRight size={20} /></button>
           </div>
 
-          <Button onClick={() => setModalOpen(true)} disabled={isPast} className={`rounded-xl px-4 ${isPast ? 'opacity-50 cursor-not-allowed bg-gray-400' : 'bg-[#A8C7FA] text-[#003355]'}`}>
+          <Button onClick={openNewTaskModal} disabled={isPast} className={`rounded-xl px-4 ${isPast ? 'opacity-50 cursor-not-allowed bg-gray-400' : 'bg-[#A8C7FA] text-[#003355]'}`}>
             {isPast ? <Lock size={20} /> : <Plus size={20} />}
           </Button>
         </div>
@@ -115,12 +164,13 @@ const TodosPage = () => {
         )}
       </div>
 
-      <Modal isOpen={modalOpen} onClose={() => setModalOpen(false)} title="New Task">
-        <form onSubmit={add} className="space-y-4">
+      {/* MODAL HANDLES BOTH CREATE AND EDIT */}
+      <Modal isOpen={modalOpen} onClose={() => setModalOpen(false)} title={editingTodo ? "Edit Task" : "New Task"}>
+        <form onSubmit={handleSaveTodo} className="space-y-4">
           <Input value={newTask} onChange={e => setNewTask(e.target.value)} placeholder="e.g., Read 10 pages" autoFocus />
           <div className="flex justify-end gap-2 pt-4">
             <Button type="button" variant="ghost" onClick={() => setModalOpen(false)}>Cancel</Button>
-            <Button type="submit">Create Task</Button>
+            <Button type="submit">{editingTodo ? "Save Changes" : "Create Task"}</Button>
           </div>
         </form>
       </Modal>
