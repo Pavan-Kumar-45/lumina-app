@@ -6,7 +6,7 @@ class AddTodo(BaseModel):
     title : str 
     description: Optional[str] = None
     priority: str = "medium"   
-    date: Optional[date] = None
+    date: Optional[datetime.date] = None
     model_config = ConfigDict(from_attributes=True)
   
 
