@@ -1,12 +1,13 @@
 from pydantic import BaseModel, ConfigDict
 from typing import Optional, List
-from datetime import datetime, date
+from datetime import datetime 
+from datetime import date as datee
  
 class AddTodo(BaseModel):
     title : str 
     description: Optional[str] = None
     priority: str = "medium"   
-    date: Optional[datetime.date] = None
+    date: Optional[datee] = None
     model_config = ConfigDict(from_attributes=True)
   
 
