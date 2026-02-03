@@ -5,6 +5,7 @@ import { todosApi } from '../api/todos';
 import { diariesApi } from '../api/diaries';
 import { notesApi } from '../api/notes';
 import { goalsApi } from '../api/goals';
+import { MOTIVATIONAL_QUOTES } from '../constants';
 
 const StatWidget = ({ title, value, subtitle, icon: Icon, color, delay, onClick }) => (
   <motion.div
@@ -69,12 +70,7 @@ const DashboardPage = ({ onNavigate }) => {
     });
 
     // 2. Fetch Quote (Mock or API)
-    const quotes = [
-        { text: "The secret of getting ahead is getting started.", author: "Mark Twain" },
-        { text: "It always seems impossible until it's done.", author: "Nelson Mandela" },
-        { text: "Don't watch the clock; do what it does. Keep going.", author: "Sam Levenson" }
-    ];
-    setQuote(quotes[Math.floor(Math.random() * quotes.length)]);
+    setQuote(MOTIVATIONAL_QUOTES[Math.floor(Math.random() * MOTIVATIONAL_QUOTES.length)]);
 
   }, []);
 

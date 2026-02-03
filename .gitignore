@@ -17,3 +17,5 @@ test.db
 
 # Logs
 *.log
+demo.py 
+/tests/
