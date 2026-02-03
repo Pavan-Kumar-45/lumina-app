@@ -207,18 +207,7 @@ lumina-app/
 
 For detailed API documentation, visit: **http://localhost:8000/docs** after starting the backend server.
 
-## 🧪 Testing
-
-Run the test suite:
-```bash
-pytest tests/ -v
-```
-
-Run with coverage:
-```bash
-pytest tests/ --cov=backend --cov-report=html
-```
-
+ 
 ## 🔧 Development
 
 ### Code Formatting (Frontend)
@@ -259,11 +248,7 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 
 This project is licensed under the MIT License - see the LICENSE file for details.
 
-## 👤 Author
-
-**Your Name**
-- GitHub: [@yourusername](https://github.com/yourusername)
-- Email: your.email@example.com
+ 
 
 ## 🙏 Acknowledgments
 
