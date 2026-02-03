@@ -163,7 +163,6 @@ lumina-app/
 │   │   ├── utils/         # Utility functions
 │   │   └── constants/     # Constants and configs
 │   └── public/            # Static assets
-├── tests/                 # Test files
 ├── requirements.txt       # Python dependencies
 └── README.md             # This file
 ```
