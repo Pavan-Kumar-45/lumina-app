@@ -1,4 +1,4 @@
-# 🌟 Lumina App
+# Lumina App
 
 A modern, full-stack productivity application that helps users manage their daily tasks, diary entries, goals, and notes. Built with FastAPI and React, Lumina provides a seamless experience for organizing your life.
 
@@ -6,48 +6,55 @@ A modern, full-stack productivity application that helps users manage their dail
 ![Python](https://img.shields.io/badge/python-3.11+-blue.svg)
 ![React](https://img.shields.io/badge/react-19.2.0-blue.svg)
 
-## ✨ Features
+## Features
 
-- **📝 Todo Management**: Create, organize, and track your daily tasks
-- **📔 Digital Diary**: Write and manage daily diary entries
-- **🎯 Goal Tracking**: Set and monitor your personal and professional goals
-- **📌 Notes**: Quick note-taking with markdown support
-- **🔐 Authentication**: Secure user registration and login with JWT
-- **📧 Email Integration**: Email notifications and reminders
-- **⏰ Scheduled Tasks**: Automated reminders using APScheduler
-- **🌓 Theme Support**: Light and dark mode
-- **📱 Responsive Design**: Works seamlessly across all devices
-- **📊 Dashboard**: Comprehensive overview of all your activities
+- **Todo Management**: Create, organize, and track daily tasks with priority levels and date filtering
+- **Digital Diary/Journal**: Write and manage daily diary entries with date navigation
+- **Goal Tracking**: Set, monitor, and complete personal and professional goals with target dates
+- **Notes with Markdown**: Rich note-taking with full Markdown support, LaTeX math, syntax highlighting, tags, and export
+- **Authentication**: Secure user registration and login with JWT (Bearer token)
+- **Email Notifications**: Email verification via OTP and daily task reminder emails (powered by Resend)
+- **Scheduled Reminders**: Automated daily reminders at 8 AM and 6 PM (IST) using APScheduler
+- **Theme Support**: Light and dark mode toggle
+- **Responsive Design**: Works seamlessly across desktop and mobile devices
+- **Dashboard**: Overview with stats, motivational quotes, and task completion streaks
+- **Global Search**: Instant search across notes, tasks, diary entries, and goals
+- **Task Rollover**: Automatically or manually roll over incomplete tasks to today
+- **Export**: Export notes and diary entries as Markdown, text, or PDF
 
-## 🛠️ Tech Stack
+## Tech Stack
 
 ### Backend
-- **FastAPI**: Modern, fast web framework for building APIs
-- **SQLAlchemy**: SQL toolkit and ORM
-- **PostgreSQL/MySQL**: Database (configurable)
-- **JWT**: Token-based authentication
-- **APScheduler**: Task scheduling
-- **Pydantic**: Data validation
-- **FastAPI-Mail**: Email integration
+- **FastAPI** — Modern, async Python web framework
+- **SQLAlchemy** — SQL toolkit and ORM (with SQLAlchemy-Utils)
+- **PostgreSQL / MySQL** — Database (configurable via environment variable)
+- **JWT (PyJWT)** — Token-based authentication with Bearer scheme
+- **pwdlib** — Password hashing (Argon2)
+- **APScheduler** — Async task scheduling for email reminders
+- **Pydantic v2** — Data validation and serialization
+- **Resend** — Transactional email API (verification codes and reminders)
+- **python-dotenv** — Environment variable management
 
 ### Frontend
-- **React 19**: UI framework
-- **Vite**: Build tool and dev server
-- **Tailwind CSS**: Utility-first CSS framework
-- **Framer Motion**: Animation library
-- **Lucide React**: Icon library
-- **React Router**: Client-side routing
-- **React Markdown**: Markdown rendering with KaTeX support
+- **React 19** — UI framework
+- **Vite** — Build tool and dev server
+- **Tailwind CSS** — Utility-first CSS framework
+- **Framer Motion** — Animation library
+- **Lucide React** — Icon library
+- **React Markdown** — Markdown rendering with remark-gfm, remark-math, remark-breaks
+- **rehype-katex** — LaTeX math rendering
+- **react-syntax-highlighter** — Code block syntax highlighting
+- **clsx + tailwind-merge** — Conditional class utilities
 
-## 📋 Prerequisites
+## Prerequisites
 
 Before you begin, ensure you have the following installed:
 - **Python 3.11+**
 - **Node.js 18+** and **npm**
-- **PostgreSQL** or **MySQL** (depending on your configuration)
+- **PostgreSQL** or **MySQL** database
 - **Git**
 
-## 🚀 Installation
+## Installation
 
 ### 1. Clone the Repository
 ```bash
@@ -82,28 +89,20 @@ pip install -r requirements.txt
 ```
 
 #### Configure Environment Variables
-Create a `.env` file in the root directory:
+Create a `.env` file in the project root:
 ```env
-# Database
-DATABASE_URL=postgresql://user:password@localhost:5432/lumina_db
+# Database connection string
+DB=postgresql://user:password@localhost:5432/lumina_db
 # or for MySQL:
-# DATABASE_URL=mysql+pymysql://user:password@localhost:3306/lumina_db
+# DB=mysql+pymysql://user:password@localhost:3306/lumina_db
 
-# JWT
+# JWT Authentication
 SECRET_KEY=your-secret-key-here
 ALGORITHM=HS256
 ACCESS_TOKEN_EXPIRE_MINUTES=30
 
-# Email Configuration (Optional)
-MAIL_USERNAME=your-email@example.com
-MAIL_PASSWORD=your-app-password
-MAIL_FROM=your-email@example.com
-MAIL_PORT=587
-MAIL_SERVER=smtp.gmail.com
-MAIL_FROM_NAME=Lumina App
-
-# Frontend URL
-FRONTEND_URL=http://localhost:5173
+# Resend Email API (for notifications & verification)
+RESEND_API_KEY=re_your_resend_api_key
 ```
 
 ### 3. Frontend Setup
@@ -113,7 +112,7 @@ cd frontend
 npm install
 ```
 
-## 🏃 Running the Application
+## Running the Application
 
 ### Start Backend Server
 ```bash
@@ -132,84 +131,115 @@ npm run dev
 ```
 Frontend will run at: **http://localhost:5173**
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 lumina-app/
 ├── backend/                 # FastAPI backend
 │   ├── routers/            # API route handlers
-│   │   ├── auth.py         # Authentication endpoints
-│   │   ├── diary.py        # Diary management
-│   │   ├── goals.py        # Goals tracking
-│   │   ├── notes.py        # Notes management
-│   │   ├── todos.py        # Todo list operations
-│   │   └── users.py        # User management
-│   ├── db.py               # Database configuration
-│   ├── models.py           # SQLAlchemy models
-│   ├── schemas.py          # Pydantic schemas
-│   ├── email_utils.py      # Email utilities
-│   ├── scheduler.py        # Task scheduler
-│   └── main.py             # FastAPI application
-├── frontend/               # React frontend
+│   │   ├── auth.py         # Authentication (register, login, JWT)
+│   │   ├── diary.py        # Diary/Journal CRUD + search
+│   │   ├── goals.py        # Goals CRUD + completion
+│   │   ├── notes.py        # Notes CRUD + tags + search
+│   │   ├── todos.py        # Todos CRUD + status + rollover
+│   │   └── users.py        # User profile, email verification, notifications
+│   ├── db.py               # Database engine & session management
+│   ├── models.py           # Pydantic request/response models
+│   ├── schemas.py          # SQLAlchemy ORM table definitions
+│   ├── email_utils.py      # Resend email utilities (OTP & reminders)
+│   ├── scheduler.py        # APScheduler daily reminder jobs
+│   └── main.py             # FastAPI app, CORS, lifespan events
+├── frontend/               # React + Vite frontend
 │   ├── src/
-│   │   ├── api/           # API client functions
+│   │   ├── api/           # API client & endpoint functions
 │   │   ├── components/    # React components
-│   │   │   ├── common/    # Reusable components
-│   │   │   ├── features/  # Feature-specific components
-│   │   │   └── layout/    # Layout components
-│   │   ├── pages/         # Page components
-│   │   ├── context/       # React context providers
-│   │   ├── hooks/         # Custom React hooks
-│   │   ├── utils/         # Utility functions
-│   │   └── constants/     # Constants and configs
+│   │   │   ├── common/    # Reusable UI (Button, Card, Modal, Calendar, etc.)
+│   │   │   ├── features/  # Feature components (diary, goals, todos)
+│   │   │   └── layout/    # Layout (Sidebar, Topbar, MainLayout)
+│   │   ├── pages/         # Page components (Dashboard, Todos, Diary, etc.)
+│   │   ├── context/       # React context (Auth, Theme)
+│   │   ├── hooks/         # Custom hooks (useAuth, useFetch, useForm, etc.)
+│   │   ├── utils/         # Utility functions (date, export)
+│   │   └── constants/     # App constants & animation variants
 │   └── public/            # Static assets
+├── tests/                 # Test suite (pytest)
 ├── requirements.txt       # Python dependencies
-└── README.md             # This file
+└── README.md              # This file
 ```
 
-## 🔌 API Endpoints
+## API Endpoints
 
-### Authentication
-- `POST /auth/register` - Register new user
-- `POST /auth/login` - User login
-- `POST /auth/token` - Get access token
+### Authentication (`/auth`)
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/auth/register` | Register a new user |
+| POST | `/auth/login` | Login (OAuth2 form, returns JWT) |
 
-### Users
-- `GET /users/me` - Get current user
-- `PUT /users/me` - Update user profile
-- `DELETE /users/me` - Delete user account
+### Users (`/users/me`)
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/users/me/` | Get current user profile |
+| PUT | `/users/me/username` | Update username |
+| PUT | `/users/me/email` | Update email |
+| PUT | `/users/me/password` | Update password |
+| PUT | `/users/me/rollover` | Toggle auto-rollover setting |
+| PUT | `/users/me/notifications` | Enable/disable notifications |
+| PUT | `/users/me/notifications/disable` | Disable notifications |
+| POST | `/users/me/send-validation-code` | Send email OTP |
+| POST | `/users/me/validate-email` | Verify email with OTP |
+| DELETE | `/users/me/` | Delete account |
 
-### Todos
-- `GET /todos` - Get all todos
-- `POST /todos` - Create new todo
-- `PUT /todos/{id}` - Update todo
-- `DELETE /todos/{id}` - Delete todo
+### Todos (`/todos`)
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/todos/` | Get all todos |
+| GET | `/todos/search?query=` | Search todos |
+| GET | `/todos/date/{date}` | Get todos by date |
+| GET | `/todos/{id}` | Get todo by ID |
+| POST | `/todos/` | Create a todo |
+| PUT | `/todos/{id}` | Update a todo |
+| PUT | `/todos/{id}/status` | Toggle todo status |
+| POST | `/todos/rollover` | Roll over incomplete past tasks to today |
+| DELETE | `/todos/{id}` | Delete a todo |
 
-### Diary
-- `GET /diary` - Get diary entries
-- `POST /diary` - Create diary entry
-- `GET /diary/{id}` - Get specific entry
-- `PUT /diary/{id}` - Update entry
-- `DELETE /diary/{id}` - Delete entry
+### Diary (`/diaries`)
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/diaries/` | Get all diary entries |
+| GET | `/diaries/search?query=` | Search diary entries |
+| GET | `/diaries/date/{date}` | Get entries by date |
+| GET | `/diaries/{id}` | Get entry by ID |
+| POST | `/diaries/` | Create a diary entry |
+| PUT | `/diaries/{id}` | Update a diary entry |
+| DELETE | `/diaries/{id}` | Delete a diary entry |
 
-### Goals
-- `GET /goals` - Get all goals
-- `POST /goals` - Create new goal
-- `PUT /goals/{id}` - Update goal
-- `DELETE /goals/{id}` - Delete goal
+### Notes (`/notes`)
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/notes/` | Get all notes |
+| GET | `/notes/search?query=` | Search notes |
+| GET | `/notes/date/{date}` | Get notes by creation date |
+| GET | `/notes/{id}` | Get note by ID |
+| POST | `/notes/` | Create a note (with tags) |
+| PUT | `/notes/{id}` | Update a note |
+| DELETE | `/notes/{id}` | Delete a note |
 
-### Notes
-- `GET /notes` - Get all notes
-- `POST /notes` - Create new note
-- `PUT /notes/{id}` - Update note
-- `DELETE /notes/{id}` - Delete note
+### Goals (`/goals`)
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/goals/` | Get all goals |
+| GET | `/goals/search?query=` | Search goals |
+| GET | `/goals/{id}` | Get goal by ID |
+| POST | `/goals/` | Create a goal |
+| PUT | `/goals/{id}` | Update a goal |
+| PUT | `/goals/complete/{id}` | Mark goal as completed |
+| DELETE | `/goals/{id}` | Delete a goal |
 
-For detailed API documentation, visit: **http://localhost:8000/docs** after starting the backend server.
+For interactive API documentation, visit **http://localhost:8000/docs** after starting the backend.
 
- 
-## 🔧 Development
+## Development
 
-### Code Formatting (Frontend)
+### Code Linting (Frontend)
 ```bash
 cd frontend
 npm run lint
@@ -217,7 +247,7 @@ npm run lint
 
 ### Building for Production
 ```bash
-# Backend - No build needed, just ensure dependencies are installed
+# Backend — no build step needed
 pip install -r requirements.txt
 
 # Frontend
@@ -225,15 +255,16 @@ cd frontend
 npm run build
 ```
 
-## 🌐 Deployment
+## Deployment
 
 The application is configured for deployment on:
-- **Backend**: Any platform supporting Python (Heroku, Railway, DigitalOcean, etc.)
-- **Frontend**: Vercel (as indicated in CORS settings)
+- **Backend**: Any platform supporting Python (Render, Railway, DigitalOcean, etc.)
+- **Frontend**: Vercel, Netlify, or any static hosting
 
-Update the `origins` list in [backend/main.py](backend/main.py) with your production frontend URL.
+Update the `origins` list in `backend/main.py` with your production frontend URL.
+Update `API_BASE_URL` in `frontend/src/api/client.js` with your production backend URL.
 
-## 🤝 Contributing
+## Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.
 
@@ -243,22 +274,12 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 4. Push to the branch (`git push origin feature/AmazingFeature`)
 5. Open a Pull Request
 
-## 📝 License
+## License
 
 This project is licensed under the MIT License - see the LICENSE file for details.
 
- 
-
-## 🙏 Acknowledgments
+## Acknowledgments
 
 - FastAPI for the amazing backend framework
 - React team for the powerful UI library
 - All open-source contributors whose packages made this possible
-
-## 📞 Support
-
-If you have any questions or run into issues, please open an issue on GitHub.
-
----
-
- 

@@ -8,7 +8,7 @@ from ..models import (
     UpdateStatus
 )
 from ..schemas import Todo 
-from datetime import datetime, date ,timedelta
+from datetime import datetime, date, timezone, timedelta
 from .auth import UserDep
 from ..db import SessionDep
  
@@ -41,7 +41,7 @@ async def get_todoby_date(entry_date: date, db:SessionDep,user : UserDep):
     today = date.today()
     if entry_date == today and user.rollover:
         incomplete_todos = db.query(Todo).filter(
-            (func.date(Todo.entry_datetime) == today) &
+            (func.date(Todo.entry_datetime) < today) &
             (Todo.user_id == user.id) &
             (Todo.status == False)
         ).all()
@@ -52,7 +52,7 @@ async def get_todoby_date(entry_date: date, db:SessionDep,user : UserDep):
                 original_time = todo.entry_datetime.time()
                 todo.entry_datetime = datetime.combine(today, original_time)
                 todo.edited = True
-                todo.edited_datetime = datetime.utcnow()
+                todo.edited_datetime = datetime.now(timezone.utc)
             db.commit()
     todos = db.query(Todo).filter((func.date(Todo.entry_datetime) == entry_date) & (Todo.user_id == user.id)).all() 
     return todos
@@ -108,7 +108,7 @@ async def update_status(id:int, todo:UpdateStatus,  db:SessionDep, user : UserDe
     else : 
         db_todo.status = todo.status 
         db_todo.edited = True 
-        now = datetime.utcnow() 
+        now = datetime.now(timezone.utc) 
         db_todo.edited_datetime = now 
         if todo.status:
             db_todo.completed_datetime = now
@@ -129,7 +129,7 @@ async def update_todo(id:int, todo:UpdateTodo,  db:SessionDep, user : UserDep):
         db_todo.description = todo.description
         db_todo.edited = True 
         db_todo.priority = todo.priority
-        db_todo.edited_datetime = datetime.utcnow() 
+        db_todo.edited_datetime = datetime.now(timezone.utc) 
         db.commit() 
         db.refresh(db_todo)
         return db_todo  
@@ -139,12 +139,12 @@ async def rollover_todos(db : SessionDep, user : UserDep):
     today = date.today()
     
     todos = db.query(Todo).filter(
-        (func.date(Todo.entry_datetime) < today) & (Todo.user_id == user.id) & (Todo.status == False) & (Todo.status == False)).all() 
+        (func.date(Todo.entry_datetime) < today) & (Todo.user_id == user.id) & (Todo.status == False)).all() 
     for todo in todos:
         original_time = todo.entry_datetime.time()
         todo.entry_datetime = datetime.combine(today, original_time)
         todo.edited = True
-        todo.edited_datetime = datetime.utcnow()
+        todo.edited_datetime = datetime.now(timezone.utc)
     db.commit()
     for todo in todos:
         db.refresh(todo)

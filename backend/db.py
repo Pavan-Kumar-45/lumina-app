@@ -7,7 +7,10 @@ from fastapi import Depends
 load_dotenv() 
 
 DB_STRING = os.getenv("DB") 
- 
+
+if not DB_STRING:
+    raise RuntimeError("Database connection string 'DB' is not set in environment variables")
+
 engine = create_engine(DB_STRING,pool_pre_ping=True)
 SessionLocal = sessionmaker(
     autoflush=False,

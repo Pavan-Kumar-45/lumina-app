@@ -1,13 +1,13 @@
 from pydantic import BaseModel, ConfigDict
 from typing import Optional, List
 from datetime import datetime 
-from datetime import date as datee
+from datetime import date as datetimedate
  
 class AddTodo(BaseModel):
     title : str 
     description: Optional[str] = None
     priority: str = "medium"   
-    date: Optional[datee] = None
+    date: Optional[datetimedate] = None
     model_config = ConfigDict(from_attributes=True)
   
 
@@ -40,7 +40,7 @@ class CreateDiary(BaseModel):
     content : str 
     model_config = ConfigDict(from_attributes=True)
 
-class ReturnDairy(BaseModel):
+class ReturnDiary(BaseModel):
     id : int 
     title : str 
     content : str 
@@ -49,7 +49,7 @@ class ReturnDairy(BaseModel):
     edited_datetime : Optional[datetime] = None
     model_config = ConfigDict(from_attributes=True)
 
-class UpdateDairy(BaseModel):
+class UpdateDiary(BaseModel):
     title : str 
     content : str 
     model_config = ConfigDict(from_attributes=True)
@@ -72,7 +72,6 @@ class CreateUser(BaseModel):
 class ReturnUser(BaseModel):
     id : int 
     username : str 
-    hashed_password : str 
     rollover : bool
     email : str 
     email_validated : bool
@@ -145,14 +144,9 @@ class CreateGoal(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
 class UpdateGoal(BaseModel):
-    id : int 
     title : str 
     description : str 
-    is_completed : bool 
-    created_at : datetime
     target_date: Optional[datetime] = None
-    edited_at : Optional[datetime] = None
-    completed_at : Optional[datetime] = None
     model_config = ConfigDict(from_attributes=True)
 
 class ReturnGoal(BaseModel):
@@ -161,6 +155,8 @@ class ReturnGoal(BaseModel):
     description : str 
     is_completed : bool 
     created_at : datetime
+    target_date: Optional[datetime] = None
+    updated_at : Optional[datetime] = None
     completed_at : Optional[datetime] = None
     model_config = ConfigDict(from_attributes=True)
 

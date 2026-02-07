@@ -6,7 +6,7 @@ from ..models import (
     ReturnGoal,
 )
 from ..schemas import Goal 
-from datetime import datetime
+from datetime import datetime, timezone
 from .auth import UserDep
 from ..db import SessionDep
 
@@ -63,7 +63,7 @@ async def update_goal(id: int, user : UserDep, db : SessionDep, goal : UpdateGoa
     db_goal.title = goal.title
     db_goal.description = goal.description
     db_goal.target_date = goal.target_date
-    db_goal.updated_at = datetime.utcnow()
+    db_goal.updated_at = datetime.now(timezone.utc)
     db.commit()
     db.refresh(db_goal)
     return db_goal
@@ -75,7 +75,7 @@ async def complete_goal(id: int, user : UserDep, db : SessionDep):
     if not db_goal:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail="Goal Not Found")
     db_goal.is_completed = True
-    db_goal.completed_at = datetime.utcnow()
+    db_goal.completed_at = datetime.now(timezone.utc)
     db.commit()
     db.refresh(db_goal)
     return db_goal

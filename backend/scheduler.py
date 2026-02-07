@@ -1,14 +1,8 @@
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
-from sqlalchemy.orm import sessionmaker
-from sqlalchemy import create_engine
-from datetime import datetime, date
+from datetime import datetime
 from .schemas import User, Todo 
 from .email_utils import send_reminder_email 
-import os
-
-DB_STRING = os.getenv("DB")
-engine = create_engine(DB_STRING)
-SessionLocal = sessionmaker(bind=engine)
+from .db import SessionLocal
 
 async def send_daily_reminders():
     print(f"⏰ Scheduler Triggered at {datetime.now()} (Server Time)")  

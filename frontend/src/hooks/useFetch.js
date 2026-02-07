@@ -27,6 +27,7 @@ export const useFetch = (fetchFn, dependencies = []) => {
 
   useEffect(() => {
     fetchData();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, dependencies);
 
   const refetch = useCallback(() => {

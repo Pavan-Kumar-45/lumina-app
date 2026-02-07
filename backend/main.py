@@ -15,8 +15,7 @@ from .scheduler import scheduler
 
 origins = [
     "http://localhost:5173",
-    "https://lumina-app-psi.vercel.app",  # <--- We will get this URL later, but add it now
-    "*" # Allow all for now (easiest for testing)
+    "https://lumina-app-psi.vercel.app",
 ]
 
 def create_db_and_tables():

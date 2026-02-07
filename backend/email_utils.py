@@ -48,7 +48,7 @@ async def send_reminder_email(email: EmailStr, username: str, task_count: int):
                     </tr>
                     <tr>
                         <td style="background-color: #f8f9fa; padding: 30px; text-align: center; border-top: 1px solid #e9ecef;">
-                            <p style="margin: 0; color: #999999; font-size: 13px;">© 2024 Lumina. All rights reserved.</p>
+                            <p style="margin: 0; color: #999999; font-size: 13px;">&copy; 2025 Lumina. All rights reserved.</p>
                         </td>
                     </tr>
                 </table>

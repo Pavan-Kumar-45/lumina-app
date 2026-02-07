@@ -8,7 +8,7 @@ from ..models import (
     ReturnNote,
 )
 from ..schemas import Note,Tag 
-from datetime import datetime, date
+from datetime import datetime, date, timezone
 from .auth import UserDep
 from ..db import SessionDep
 
@@ -98,7 +98,7 @@ async def update_note_id(id : int ,note : UpdateNote ,  db : SessionDep, user:Us
     else:
         db_note.title = note.title 
         db_note.content = note.content
-        db_note.edited_at = datetime.utcnow() 
+        db_note.edited_at = datetime.now(timezone.utc) 
         db_note.is_pinned = note.is_pinned
         db_note.is_archived = note.is_archived
 

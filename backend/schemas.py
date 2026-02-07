@@ -1,5 +1,5 @@
 from sqlalchemy.orm import declarative_base
-from datetime import datetime
+from datetime import datetime, timezone
 from sqlalchemy  import Column, Integer, String, Boolean, DateTime, Text , ForeignKey, Table
 from sqlalchemy_utils import EmailType
 from sqlalchemy.orm import relationship, mapped_column  
@@ -26,8 +26,8 @@ class User(Base):
     id = Column(Integer, primary_key=True , index = True)
     username = Column(String(255) , unique=True, index=True, nullable=False)
     hashed_password = Column(String(255) , nullable=False) 
-    created_at = Column(DateTime, default=datetime.utcnow)
-    updated_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
+    updated_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
     email = Column(EmailType, nullable=False , unique=True)
     email_validated = Column(Boolean, nullable=False, default=False)
     notifications_enabled = Column(Boolean, nullable=False, default=True)
@@ -44,7 +44,7 @@ class Diary(Base):
     id = Column(Integer, primary_key=True, index=True)
     title = Column(String(255), nullable=True)
     content = Column(Text, nullable=False)
-    entry_datetime = Column(DateTime, nullable=False, default=datetime.utcnow)
+    entry_datetime = Column(DateTime, nullable=False, default=lambda: datetime.now(timezone.utc))
     edited = Column(Boolean, nullable=False, default=False)
     edited_datetime = Column(DateTime, nullable=True)
     user_id = mapped_column(ForeignKey("User.id"), nullable=False)
@@ -60,7 +60,7 @@ class Todo(Base):
     description = Column(Text, nullable=True)
     priority = Column(String(50), nullable=False)
     status = Column(Boolean, default=False) 
-    entry_datetime = Column(DateTime, nullable=False, default=datetime.utcnow)
+    entry_datetime = Column(DateTime, nullable=False, default=lambda: datetime.now(timezone.utc))
     edited_datetime = Column(DateTime, nullable=True)
     completed_datetime = Column(DateTime, nullable=True)
     user_id = mapped_column(ForeignKey("User.id"), nullable=False)
@@ -76,7 +76,7 @@ class Note(Base):
     content = Column(Text, nullable=False)
     is_pinned = Column(Boolean, nullable=False,default=False)
     is_archived = Column(Boolean,nullable=False, default=False)
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
     edited_at = Column(DateTime, nullable=True)
     tags = relationship("Tag" , secondary=note_tags,back_populates="notes")
     user_id = mapped_column(ForeignKey("User.id"), nullable=False)
@@ -90,7 +90,7 @@ class Goal(Base):
     description = Column(Text, nullable=False)
     is_completed = Column(Boolean, nullable=False, default=False)
     target_date = Column(DateTime, nullable=True)
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
     completed_at = Column(DateTime, nullable=True)
     updated_at = Column(DateTime, nullable=True)
     user_id = mapped_column(ForeignKey("User.id"), nullable=False)
